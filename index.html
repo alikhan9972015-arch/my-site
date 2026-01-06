@@ -87,6 +87,24 @@
     document.getElementById("comments").appendChild(div);
     document.getElementById("commentInput").value = "";
   }
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDrjaL2v_fea2lCg-bxphpaZ7VK-twGFsk",
+    authDomain: "my-social-site-a2c6f.firebaseapp.com",
+    projectId: "my-social-site-a2c6f",
+    storageBucket: "my-social-site-a2c6f.firebasestorage.app",
+    messagingSenderId: "891501245050",
+    appId: "1:891501245050:web:a525b7d3396fc11f4401c3"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
 </script>
 
 </body>
