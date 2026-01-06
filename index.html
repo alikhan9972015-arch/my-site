@@ -1,11 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <title>Моя соцсеть</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+    }
+    header {
+      background: #2a5885;
+      color: white;
+      padding: 15px;
+      font-size: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    .post {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+    .like {
+      color: #2a5885;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>Привет! Это моя первая соцсеть</h1>
-  <p>Скоро тут будут посты, музыка и лайки</p>
+
+<header>Моя соцсеть</header>
+
+<div class="container">
+  <div class="post">
+    <p>Это мой первый пост 👋</p>
+    <span class="like" onclick="like()">❤️ Лайк</span>
+    <span id="count">0</span>
+  </div>
+</div>
+
+<script>
+  let likes = 0;
+  function like() {
+    likes++;
+    document.getElementById("count").innerText = likes;
+  }
+</script>
+
 </body>
 </html>
