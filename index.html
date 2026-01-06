@@ -28,6 +28,23 @@
     .like {
       color: #2a5885;
       cursor: pointer;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 5px;
+      padding: 8px;
+    }
+    .comment {
+      background: #eee;
+      padding: 5px;
+      margin-top: 5px;
+      border-radius: 4px;
     }
   </style>
 </head>
@@ -38,16 +55,37 @@
 <div class="container">
   <div class="post">
     <p>Это мой первый пост 👋</p>
-    <span class="like" onclick="like()">❤️ Лайк</span>
-    <span id="count">0</span>
+
+    <div>
+      <span class="like" onclick="like()">❤️ Лайк</span>
+      <span id="count">0</span>
+    </div>
+
+    <input id="commentInput" placeholder="Написать комментарий..." />
+    <button onclick="addComment()">Отправить</button>
+
+    <div id="comments"></div>
   </div>
 </div>
 
 <script>
   let likes = 0;
+
   function like() {
     likes++;
     document.getElementById("count").innerText = likes;
+  }
+
+  function addComment() {
+    const text = document.getElementById("commentInput").value;
+    if (text === "") return;
+
+    const div = document.createElement("div");
+    div.className = "comment";
+    div.innerText = text;
+
+    document.getElementById("comments").appendChild(div);
+    document.getElementById("commentInput").value = "";
   }
 </script>
 
