@@ -110,7 +110,11 @@ import {
   query, orderBy, doc, setDoc, deleteDoc, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -126,17 +130,22 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
 const postsRef = collection(db, "posts");
+
 let currentUser = null;
 
 // helpers
 const avatarLetter = n => n[0].toUpperCase();
-const avatarColor = n => `hsl(${[...n].reduce((a,c)=>a+c.charCodeAt(),0)%360},60%,50%)`;
+const avatarColor = n =>
+  `hsl(${[...n].reduce((a,c)=>a+c.charCodeAt(),0)%360},60%,50%)`;
 
-window.loginWithGoogle = async () => {
-  await signInWithPopup(auth, provider);
+window.loginWithGoogle = () => {
+  signInWithRedirect(auth, provider);
 };
+
+getRedirectResult(auth).catch(err => {
+  console.error("Auth redirect error:", err);
+});
 
 onAuthStateChanged(auth, user => {
   if (user) {
@@ -152,8 +161,9 @@ onAuthStateChanged(auth, user => {
 });
 
 window.addPost = async () => {
+  if (!currentUser) return;
   const text = postInput.value.trim();
-  if (!text || !currentUser) return;
+  if (!text) return;
 
   await addDoc(postsRef, {
     author: currentUser.displayName,
@@ -168,6 +178,8 @@ window.addPost = async () => {
 };
 
 async function loadPosts() {
+  if (!currentUser) return;
+
   const snap = await getDocs(query(postsRef, orderBy("created", "desc")));
   posts.innerHTML = "";
 
@@ -181,16 +193,21 @@ async function loadPosts() {
     const el = document.createElement("div");
     el.className = "post";
     el.innerHTML = `
-      ${d.authorId===currentUser.uid?`<button class="delete-btn" onclick="deletePost('${id}')">🗑</button>`:""}
+      ${d.authorId===currentUser.uid
+        ? `<button class="delete-btn" onclick="deletePost('${id}')">🗑</button>`
+        : ""}
       <div class="row">
-        <div class="avatar" style="background:${avatarColor(d.author)}">${avatarLetter(d.author)}</div>
+        <div class="avatar" style="background:${avatarColor(d.author)}">
+          ${avatarLetter(d.author)}
+        </div>
         <div>
           <div class="post-author">${d.author}</div>
           <div class="post-date">${new Date(d.created).toLocaleString()}</div>
         </div>
       </div>
       <div style="margin:8px 0">${d.text}</div>
-      <button class="like-btn ${liked?"liked":""}" onclick="toggleLike('${id}')">
+      <button class="like-btn ${liked?"liked":""}"
+        onclick="toggleLike('${id}')">
         ${liked?"❤️":"🤍"} ${d.likes}
       </button>
     `;
@@ -198,7 +215,7 @@ async function loadPosts() {
   }
 }
 
-window.toggleLike = async (postId) => {
+window.toggleLike = async postId => {
   const postRef = doc(db,"posts",postId);
   const likeRef = doc(db,"posts",postId,"likes",currentUser.uid);
 
@@ -216,7 +233,7 @@ window.toggleLike = async (postId) => {
   loadPosts();
 };
 
-window.deletePost = async (id) => {
+window.deletePost = async id => {
   if (!confirm("Удалить пост?")) return;
   await deleteDoc(doc(db,"posts",id));
   loadPosts();
