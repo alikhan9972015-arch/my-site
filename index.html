@@ -25,20 +25,15 @@
       margin-bottom: 15px;
       border-radius: 8px;
     }
-    .like {
-      color: #2a5885;
+    button {
+      margin-top: 8px;
+      padding: 6px 10px;
       cursor: pointer;
-      display: inline-block;
-      margin-top: 10px;
     }
     input {
       width: 100%;
       padding: 8px;
       margin-top: 10px;
-    }
-    button {
-      margin-top: 5px;
-      padding: 8px;
     }
     .comment {
       background: #eee;
@@ -54,7 +49,7 @@
 
 <div class="container">
 
-  <!-- Добавить пост -->
+  <!-- Создание поста -->
   <div class="post">
     <input id="postInput" placeholder="Что у тебя нового?" />
     <button onclick="addPost()">Опубликовать</button>
@@ -63,15 +58,11 @@
   <!-- Лента постов -->
   <div id="posts"></div>
 
-  <!-- Комментарии (пока общие) -->
+  <!-- Общие комментарии (пока) -->
   <div class="post">
-    <span class="like" onclick="like()">❤️ Лайк</span>
-    <span id="count">0</span>
-
     <input id="nameInput" placeholder="Твоё имя" />
     <input id="commentInput" placeholder="Написать комментарий..." />
     <button onclick="addComment()">Отправить</button>
-
     <div id="comments"></div>
   </div>
 
@@ -85,7 +76,9 @@
     addDoc,
     getDocs,
     query,
-    orderBy
+    orderBy,
+    doc,
+    updateDoc
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   // 🔹 Firebase config
@@ -98,14 +91,14 @@
     appId: "1:891501245050:web:a525b7d3396fc11f4401c3"
   };
 
-  // 🔹 Init Firebase
+  // 🔹 Init
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
   const postsRef = collection(db, "posts");
   const commentsRef = collection(db, "comments");
 
-  // ➕ ДОБАВЛЕНИЕ ПОСТА
+  // ➕ ДОБАВИТЬ ПОСТ
   window.addPost = async () => {
     const input = document.getElementById("postInput");
     const text = input.value.trim();
@@ -113,7 +106,8 @@
 
     await addDoc(postsRef, {
       text: text,
-      created: Date.now()
+      created: Date.now(),
+      likes: 0
     });
 
     input.value = "";
@@ -127,19 +121,31 @@
     const container = document.getElementById("posts");
     container.innerHTML = "";
 
-    snapshot.forEach(doc => {
+    snapshot.forEach(postDoc => {
+      const data = postDoc.data();
+      const postId = postDoc.id;
+
       const post = document.createElement("div");
       post.className = "post";
-      post.innerHTML = `<p>${doc.data().text}</p>`;
+
+      post.innerHTML = `
+        <p>${data.text}</p>
+        <button onclick="likePost('${postId}', ${data.likes})">
+          ❤️ ${data.likes}
+        </button>
+      `;
+
       container.appendChild(post);
     });
   }
 
-  // ❤️ ЛАЙК (пока локальный)
-  let likes = 0;
-  window.like = () => {
-    likes++;
-    document.getElementById("count").innerText = likes;
+  // ❤️ ЛАЙК ПОСТА (Firestore)
+  window.likePost = async (postId, currentLikes) => {
+    const postRef = doc(db, "posts", postId);
+    await updateDoc(postRef, {
+      likes: currentLikes + 1
+    });
+    loadPosts();
   };
 
   // 💬 ЗАГРУЗКА КОММЕНТАРИЕВ
@@ -157,22 +163,18 @@
     });
   }
 
-  // ➕ ДОБАВЛЕНИЕ КОММЕНТАРИЯ
+  // ➕ ДОБАВИТЬ КОММЕНТАРИЙ
   window.addComment = async () => {
     const nameInput = document.getElementById("nameInput");
     const commentInput = document.getElementById("commentInput");
 
     const name = nameInput.value.trim();
     const text = commentInput.value.trim();
-
-    if (!name || !text) {
-      alert("Введите имя и комментарий");
-      return;
-    }
+    if (!name || !text) return;
 
     await addDoc(commentsRef, {
-      name: name,
-      text: text,
+      name,
+      text,
       created: Date.now()
     });
 
@@ -181,7 +183,7 @@
     loadComments();
   };
 
-  // 🚀 ПЕРВИЧНАЯ ЗАГРУЗКА
+  // 🚀 СТАРТ
   loadPosts();
   loadComments();
 </script>
