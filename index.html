@@ -1,108 +1,104 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Моя соцсеть</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: #edeef0;
-    }
-    header {
-      background: #4c75a3;
-      color: white;
-      padding: 14px;
-      font-size: 18px;
-      text-align: center;
-    }
-    .container {
-      max-width: 600px;
-      margin: 15px auto;
-      padding: 0 10px;
-    }
-    .post {
-      background: white;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      position: relative;
-    }
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-    .post-author {
-      font-weight: 600;
-      color: #2a5885;
-    }
-    .post-date {
-      font-size: 12px;
-      color: #818c99;
-    }
-    .like-btn {
-      background: none;
-      border: none;
-      color: #2a5885;
-      cursor: pointer;
-      padding: 0;
-    }
-    .like-btn.liked {
-      color: #e64646;
-      font-weight: 600;
-    }
-    input, button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #dce1e6;
-    }
-    button {
-      background: #2a5885;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .comment {
-      background: #f2f3f5;
-      padding: 6px;
-      margin-top: 5px;
-      border-radius: 6px;
-      font-size: 13px;
-    }
-    .comment .row {
-      margin-bottom: 4px;
-    }
-    .delete-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: none;
-      border: none;
-      color: #e64646;
-      cursor: pointer;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Моя соцсеть</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #edeef0;
+}
+header {
+  background: #4c75a3;
+  color: white;
+  padding: 14px;
+  font-size: 18px;
+  text-align: center;
+}
+.container {
+  max-width: 600px;
+  margin: 15px auto;
+  padding: 0 10px;
+}
+.post {
+  background: white;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  position: relative;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+.post-author {
+  font-weight: 600;
+  color: #2a5885;
+}
+.post-date {
+  font-size: 12px;
+  color: #818c99;
+}
+.like-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #2a5885;
+  font-size: 15px;
+}
+.like-btn.liked {
+  color: #e64646;
+  font-weight: 600;
+}
+input, button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #dce1e6;
+}
+button {
+  background: #2a5885;
+  color: white;
+  cursor: pointer;
+}
+.comment {
+  background: #f2f3f5;
+  padding: 6px;
+  margin-top: 5px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #e64646;
+  cursor: pointer;
+  font-size: 16px;
+}
+</style>
 </head>
+
 <body>
 
 <header>Моя соцсеть</header>
 
-<!-- LOGIN -->
 <div class="container" id="loginBox">
   <div class="post">
     <input id="loginName" placeholder="Как тебя зовут?" />
@@ -110,7 +106,6 @@
   </div>
 </div>
 
-<!-- APP -->
 <div class="container" id="app" style="display:none">
   <div class="post">
     <input id="postInput" placeholder="Что у тебя нового?" />
@@ -120,191 +115,119 @@
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    getDoc,
-    query,
-    orderBy,
-    doc,
-    updateDoc,
-    setDoc,
-    deleteDoc
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, getDocs, getDoc,
+  query, orderBy, doc, setDoc, deleteDoc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDrjaL2v_fea2lCg-bxphpaZ7VK-twGFsk",
-    authDomain: "my-social-site-a2c6f.firebaseapp.com",
-    projectId: "my-social-site-a2c6f",
-    storageBucket: "my-social-site-a2c6f.appspot.com",
-    messagingSenderId: "891501245050",
-    appId: "1:891501245050:web:a525b7d3396fc11f4401c3"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyDrjaL2v_fea2lCg-bxphpaZ7VK-twGFsk",
+  authDomain: "my-social-site-a2c6f.firebaseapp.com",
+  projectId: "my-social-site-a2c6f",
+  storageBucket: "my-social-site-a2c6f.appspot.com",
+  messagingSenderId: "891501245050",
+  appId: "1:891501245050:web:a525b7d3396fc11f4401c3"
+};
 
-  const appFirebase = initializeApp(firebaseConfig);
-  const db = getFirestore(appFirebase);
-  const postsRef = collection(db, "posts");
+const appFirebase = initializeApp(firebaseConfig);
+const db = getFirestore(appFirebase);
+const postsRef = collection(db, "posts");
 
-  let currentUser = localStorage.getItem("user");
+let currentUser = localStorage.getItem("user");
 
-  // 🔤 AVATAR helpers
-  function avatarLetter(name) {
-    return name.charAt(0).toUpperCase();
-  }
-  function avatarColor(name) {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return `hsl(${hash % 360}, 60%, 50%)`;
-  }
+// helpers
+const avatarLetter = n => n[0].toUpperCase();
+const avatarColor = n => `hsl(${[...n].reduce((a,c)=>a+c.charCodeAt(),0)%360},60%,50%)`;
 
-  // AUTH
-  window.login = () => {
-    const name = loginName.value.trim();
-    if (!name) return;
-    currentUser = name;
-    localStorage.setItem("user", name);
-    loginBox.style.display = "none";
-    app.style.display = "block";
-    loadPosts();
-  };
+window.login = () => {
+  const name = loginName.value.trim();
+  if (!name) return;
+  currentUser = name;
+  localStorage.setItem("user", name);
+  loginBox.style.display = "none";
+  app.style.display = "block";
+  loadPosts();
+};
 
-  function checkAuth() {
-    if (currentUser) {
-      loginBox.style.display = "none";
-      app.style.display = "block";
-      loadPosts();
-    }
-  }
+window.addPost = async () => {
+  if (!currentUser) return;
+  const text = postInput.value.trim();
+  if (!text) return;
 
-  // ADD POST
-  window.addPost = async () => {
-    const text = postInput.value.trim();
-    if (!text) return;
+  await addDoc(postsRef, {
+    author: currentUser,
+    text,
+    created: Date.now(),
+    likes: 0
+  });
 
-    await addDoc(postsRef, {
-      author: currentUser,
-      text,
-      created: Date.now(),
-      likes: 0
-    });
+  postInput.value = "";
+  loadPosts();
+};
 
-    postInput.value = "";
-    loadPosts();
-  };
+async function loadPosts() {
+  const snap = await getDocs(query(postsRef, orderBy("created", "desc")));
+  posts.innerHTML = "";
 
-  // LOAD POSTS
-  async function loadPosts() {
-    const q = query(postsRef, orderBy("created", "desc"));
-    const snap = await getDocs(q);
-    posts.innerHTML = "";
+  for (const p of snap.docs) {
+    const d = p.data();
+    const id = p.id;
 
-    for (const p of snap.docs) {
-      const d = p.data();
-      const id = p.id;
+    const likeRef = doc(db, "posts", id, "likes", currentUser);
+    const liked = currentUser && (await getDoc(likeRef)).exists();
 
-      const likeRef = doc(db, "posts", id, "likes", currentUser);
-      const liked = currentUser ? (await getDoc(likeRef)).exists() : false;
-
-      const el = document.createElement("div");
-      el.className = "post";
-
-      el.innerHTML = `
-        ${d.author === currentUser ? `<button class="delete-btn" onclick="deletePost('${id}')">🗑</button>` : ""}
-        <div class="row">
-          <div class="avatar" style="background:${avatarColor(d.author)}">
-            ${avatarLetter(d.author)}
-          </div>
-          <div>
-            <div class="post-author">${d.author}</div>
-            <div class="post-date">${new Date(d.created).toLocaleString()}</div>
-          </div>
+    const el = document.createElement("div");
+    el.className = "post";
+    el.innerHTML = `
+      ${d.author===currentUser?`<button class="delete-btn" onclick="deletePost('${id}')">🗑</button>`:""}
+      <div class="row">
+        <div class="avatar" style="background:${avatarColor(d.author)}">${avatarLetter(d.author)}</div>
+        <div>
+          <div class="post-author">${d.author}</div>
+          <div class="post-date">${new Date(d.created).toLocaleString()}</div>
         </div>
-
-        <div style="margin:8px 0">${d.text}</div>
-
-        <button class="like-btn ${liked ? "liked" : ""}" onclick="likePost('${id}')">
-          ${liked ? "❤️" : "🤍"} ${d.likes}
-        </button>
-
-        <input id="comment-${id}" placeholder="Комментарий">
-        <button onclick="addComment('${id}')">Комментировать</button>
-        <div id="comments-${id}"></div>
-      `;
-
-      posts.appendChild(el);
-      loadComments(id);
-    }
+      </div>
+      <div style="margin:8px 0">${d.text}</div>
+      <button class="like-btn ${liked?"liked":""}" onclick="likePost('${id}')">
+        ${liked?"❤️":"🤍"} ${d.likes}
+      </button>
+    `;
+    posts.appendChild(el);
   }
+}
 
-  // DELETE POST
-  window.deletePost = async (id) => {
-    if (!confirm("Удалить пост?")) return;
-    await deleteDoc(doc(db, "posts", id));
-    loadPosts();
-  };
+window.likePost = async (postId) => {
+  if (!currentUser) return;
 
-  // TOGGLE LIKE
-  window.likePost = async (postId) => {
-    const postRef = doc(db, "posts", postId);
-    const likeRef = doc(db, "posts", postId, "likes", currentUser);
+  const postRef = doc(db,"posts",postId);
+  const likeRef = doc(db,"posts",postId,"likes",currentUser);
 
-    const postSnap = await getDoc(postRef);
-    const likeSnap = await getDoc(likeRef);
-    const count = postSnap.data().likes || 0;
+  const postSnap = await getDoc(postRef);
+  const likeSnap = await getDoc(likeRef);
+  const count = postSnap.data().likes || 0;
 
-    if (likeSnap.exists()) {
-      await deleteDoc(likeRef);
-      await updateDoc(postRef, { likes: Math.max(count - 1, 0) });
-    } else {
-      await setDoc(likeRef, { created: Date.now() });
-      await updateDoc(postRef, { likes: count + 1 });
-    }
-    loadPosts();
-  };
-
-  // COMMENTS
-  window.addComment = async (id) => {
-    const text = document.getElementById(`comment-${id}`).value.trim();
-    if (!text) return;
-
-    await addDoc(collection(db, "posts", id, "comments"), {
-      name: currentUser,
-      text,
-      created: Date.now()
-    });
-
-    document.getElementById(`comment-${id}`).value = "";
-    loadComments(id);
-  };
-
-  async function loadComments(id) {
-    const q = query(collection(db, "posts", id, "comments"), orderBy("created"));
-    const snap = await getDocs(q);
-    const box = document.getElementById(`comments-${id}`);
-    box.innerHTML = "";
-
-    snap.forEach(c => {
-      const d = c.data();
-      const div = document.createElement("div");
-      div.className = "comment";
-      div.innerHTML = `
-        <div class="row">
-          <div class="avatar" style="background:${avatarColor(d.name)}">
-            ${avatarLetter(d.name)}
-          </div>
-          <div>${d.name}: ${d.text}</div>
-        </div>
-      `;
-      box.appendChild(div);
-    });
+  if (likeSnap.exists()) {
+    await deleteDoc(likeRef);
+    await updateDoc(postRef,{likes:Math.max(count-1,0)});
+  } else {
+    await setDoc(likeRef,{created:Date.now()});
+    await updateDoc(postRef,{likes:count+1});
   }
+  loadPosts();
+};
 
-  checkAuth();
+window.deletePost = async (id) => {
+  if (!confirm("Удалить пост?")) return;
+  await deleteDoc(doc(db,"posts",id));
+  loadPosts();
+};
+
+if (currentUser) {
+  loginBox.style.display="none";
+  app.style.display="block";
+  loadPosts();
+}
 </script>
 
 </body>
