@@ -1,111 +1,63 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>Моя соцсеть</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-    }
-    header {
-      background: #2a5885;
-      color: white;
-      padding: 15px;
-      font-size: 20px;
-    }
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-    }
-    .post {
-      background: white;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-    }
-    .like {
-      color: #2a5885;
-      cursor: pointer;
-      display: inline-block;
-      margin-top: 10px;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 10px;
-    }
-    button {
-      margin-top: 5px;
-      padding: 8px;
-    }
-    .comment {
-      background: #eee;
-      padding: 5px;
-      margin-top: 5px;
-      border-radius: 4px;
-    }
-  </style>
-</head>
-<body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<header>Моя соцсеть</header>
+const firebaseConfig = {
+  apiKey: "AIzaSyDrjaL2v_fea2lCg-bxphpaZ7VK-twGFsk",
+  authDomain: "my-social-site-a2c6f.firebaseapp.com",
+  projectId: "my-social-site-a2c6f",
+  storageBucket: "my-social-site-a2c6f.appspot.com",
+  messagingSenderId: "891501245050",
+  appId: "1:891501245050:web:a525b7d3396fc11f4401c3"
+};
 
-<div class="container">
-  <div class="post">
-    <p>Это мой первый пост 👋</p>
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const commentsRef = collection(db, "comments");
 
-    <div>
-      <span class="like" onclick="like()">❤️ Лайк</span>
-      <span id="count">0</span>
-    </div>
-
-    <input id="commentInput" placeholder="Написать комментарий..." />
-    <button onclick="addComment()">Отправить</button>
-
-    <div id="comments"></div>
-  </div>
-</div>
-
-<script>
+  // ЛАЙК (локально)
   let likes = 0;
-
-  function like() {
+  window.like = function () {
     likes++;
     document.getElementById("count").innerText = likes;
-  }
-
-  function addComment() {
-    const text = document.getElementById("commentInput").value;
-    if (text === "") return;
-
-    const div = document.createElement("div");
-    div.className = "comment";
-    div.innerText = text;
-
-    document.getElementById("comments").appendChild(div);
-    document.getElementById("commentInput").value = "";
-  }
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDrjaL2v_fea2lCg-bxphpaZ7VK-twGFsk",
-    authDomain: "my-social-site-a2c6f.firebaseapp.com",
-    projectId: "my-social-site-a2c6f",
-    storageBucket: "my-social-site-a2c6f.firebasestorage.app",
-    messagingSenderId: "891501245050",
-    appId: "1:891501245050:web:a525b7d3396fc11f4401c3"
   };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
+  // ЗАГРУЗКА КОММЕНТАРИЕВ
+  async function loadComments() {
+    const q = query(commentsRef, orderBy("created", "asc"));
+    const snapshot = await getDocs(q);
+    const container = document.getElementById("comments");
+    container.innerHTML = "";
 
-</body>
-</html>
+    snapshot.forEach(doc => {
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.innerText = doc.data().text;
+      container.appendChild(div);
+    });
+  }
+
+  // ДОБАВЛЕНИЕ КОММЕНТАРИЯ
+  window.addComment = async function () {
+    const input = document.getElementById("commentInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    await addDoc(commentsRef, {
+      text: text,
+      created: Date.now()
+    });
+
+    input.value = "";
+    loadComments();
+  };
+
+  loadComments();
+</script>
