@@ -53,13 +53,20 @@
 <header>Моя соцсеть</header>
 
 <div class="container">
-  <div class="post">
-    <p>Это мой первый пост 👋</p>
 
-    <div>
-      <span class="like" onclick="like()">❤️ Лайк</span>
-      <span id="count">0</span>
-    </div>
+  <!-- Добавить пост -->
+  <div class="post">
+    <input id="postInput" placeholder="Что у тебя нового?" />
+    <button onclick="addPost()">Опубликовать</button>
+  </div>
+
+  <!-- Лента постов -->
+  <div id="posts"></div>
+
+  <!-- Комментарии (пока общие) -->
+  <div class="post">
+    <span class="like" onclick="like()">❤️ Лайк</span>
+    <span id="count">0</span>
 
     <input id="nameInput" placeholder="Твоё имя" />
     <input id="commentInput" placeholder="Написать комментарий..." />
@@ -67,6 +74,7 @@
 
     <div id="comments"></div>
   </div>
+
 </div>
 
 <script type="module">
@@ -80,6 +88,7 @@
     orderBy
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+  // 🔹 Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyDrjaL2v_fea2lCg-bxphpaZ7VK-twGFsk",
     authDomain: "my-social-site-a2c6f.firebaseapp.com",
@@ -89,16 +98,51 @@
     appId: "1:891501245050:web:a525b7d3396fc11f4401c3"
   };
 
+  // 🔹 Init Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+
+  const postsRef = collection(db, "posts");
   const commentsRef = collection(db, "comments");
 
+  // ➕ ДОБАВЛЕНИЕ ПОСТА
+  window.addPost = async () => {
+    const input = document.getElementById("postInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    await addDoc(postsRef, {
+      text: text,
+      created: Date.now()
+    });
+
+    input.value = "";
+    loadPosts();
+  };
+
+  // 📥 ЗАГРУЗКА ПОСТОВ
+  async function loadPosts() {
+    const q = query(postsRef, orderBy("created", "desc"));
+    const snapshot = await getDocs(q);
+    const container = document.getElementById("posts");
+    container.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const post = document.createElement("div");
+      post.className = "post";
+      post.innerHTML = `<p>${doc.data().text}</p>`;
+      container.appendChild(post);
+    });
+  }
+
+  // ❤️ ЛАЙК (пока локальный)
   let likes = 0;
   window.like = () => {
     likes++;
     document.getElementById("count").innerText = likes;
   };
 
+  // 💬 ЗАГРУЗКА КОММЕНТАРИЕВ
   async function loadComments() {
     const q = query(commentsRef, orderBy("created", "asc"));
     const snapshot = await getDocs(q);
@@ -113,29 +157,32 @@
     });
   }
 
+  // ➕ ДОБАВЛЕНИЕ КОММЕНТАРИЯ
   window.addComment = async () => {
-  const nameInput = document.getElementById("nameInput");
-  const commentInput = document.getElementById("commentInput");
+    const nameInput = document.getElementById("nameInput");
+    const commentInput = document.getElementById("commentInput");
 
-  const name = nameInput.value.trim();
-  const text = commentInput.value.trim();
+    const name = nameInput.value.trim();
+    const text = commentInput.value.trim();
 
-  if (!name || !text) {
-    alert("Введите имя и комментарий");
-    return;
-  }
+    if (!name || !text) {
+      alert("Введите имя и комментарий");
+      return;
+    }
 
-  await addDoc(commentsRef, {
-    name: name,
-    text: text,
-    created: Date.now()
-  });
+    await addDoc(commentsRef, {
+      name: name,
+      text: text,
+      created: Date.now()
+    });
 
-  nameInput.value = "";
-  commentInput.value = "";
-  loadComments();
-};
+    nameInput.value = "";
+    commentInput.value = "";
+    loadComments();
+  };
 
+  // 🚀 ПЕРВИЧНАЯ ЗАГРУЗКА
+  loadPosts();
   loadComments();
 </script>
 
